@@ -5,6 +5,7 @@ use clap::{Parser, Subcommand, arg, command};
 pub const BASE_DIR: &str = "~/.nottes";
 
 mod cli;
+mod db;
 
 #[derive(Parser)]
 #[command(name = "nottes", version, about = "note-taking cli app")]
@@ -16,7 +17,6 @@ struct Args {
 #[derive(Subcommand)]
 enum NoteCommand {
     Add {
-        #[arg(short, long)]
         title: String,
     },
     List,
@@ -31,6 +31,11 @@ fn init() {
     let base_dir = shellexpand::tilde(BASE_DIR).to_string();
     if !std::path::Path::new(&base_dir).exists() {
         std::fs::create_dir_all(&base_dir).expect("Failed to create base directory");
+    }
+
+    match db::init() {
+        Ok(_) => println!("Local database initialized successfully."),
+        Err(e) => eprintln!("Failed to initialize database: {}", e),
     }
 }
 

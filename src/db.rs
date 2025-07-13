@@ -52,6 +52,7 @@ pub fn init () -> Result<()> {
         [],
     )?;
 
+    conn.close().expect("Failed to close database connection");
     Ok(())
 }
 

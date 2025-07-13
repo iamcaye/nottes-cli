@@ -18,6 +18,7 @@ pub fn add_note(title: String) -> anyhow::Result<String> {
 
     match res {
         Ok(_) => {
+            conn.close().expect("Failed to close database connection");
             Ok(file_path)
         }
         Err(e) => return Err(anyhow::anyhow!("Failed to write note: {}", e)),

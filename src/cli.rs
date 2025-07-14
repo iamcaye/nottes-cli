@@ -7,7 +7,11 @@ pub fn add_note(title: String) -> anyhow::Result<String> {
         return Ok(file_path);
     }
 
-    let content = format!("# {}", title);
+    let content = format!("---
+title: {}
+---
+
+", title);
     let res = std::fs::write(&file_path, content);
 
     let conn = db::get_connection()?;

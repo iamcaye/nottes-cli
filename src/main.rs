@@ -19,6 +19,9 @@ enum NoteCommand {
     Add {
         title: String,
     },
+    Edit {
+        title: Option<String>,
+    },
     List,
     Read {
         #[arg()]
@@ -60,6 +63,36 @@ fn main() -> anyhow::Result<()> {
         Some(NoteCommand::Read { id }) => {
             println!("Reading note with ID: {}", id);
             // Here you would add the logic to read a specific note
+        }
+        Some(NoteCommand::Edit { title }) => {
+            let notes = cli::get_notes_by_title(title.as_deref().unwrap_or(""))?;
+            if notes.is_empty() {
+                println!("No notes found with the title: {}", title.unwrap_or("".to_string()));
+                return Ok(());
+            }
+            
+            let mut fzf_command: String = "echo '".to_string();
+            for note in notes {
+                fzf_command.push_str(&format!("{}\n", note.path));
+            }
+            fzf_command.push_str("' | fzf");
+
+            let output = Command::new("sh")
+                .arg("-c")
+                .arg(fzf_command)
+                .output()?;
+
+            if output.status.success() {
+                let selected_note = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                let editor = env::var("EDITOR").unwrap_or_else(|_| String::from("vi"));
+                println!("Opening note: {}", selected_note);
+                let filepath = shellexpand::tilde(&selected_note).to_string();
+                Command::new(editor)
+                    .arg(filepath)
+                    .status()?;
+            } else {
+                eprintln!("Error selecting note: {}", String::from_utf8_lossy(&output.stderr));
+            }
         }
         None => {
             println!("No command provided. Use --help for more information.");

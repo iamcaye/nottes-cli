@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use crate::{db::{self, Note}, BASE_DIR};
 
 pub fn add_note(title: String) -> anyhow::Result<String> {
@@ -51,10 +49,10 @@ pub fn get_notes_by_title (title: &str) -> anyhow::Result<Vec<Note>> {
     let mut stmt = conn.prepare("SELECT * FROM notes WHERE title LIKE ?1")?;
     let notes_iter = stmt.query_map([format!("%{}%", title)], |row| {
         Ok(Note {
-            id: row.get(0)?,
-            title: row.get(1)?,
-            created_at: row.get(2)?,
-            slug: row.get(3)?,
+            // id: row.get(0)?,
+            // title: row.get(1)?,
+            // created_at: row.get(2)?,
+            // slug: row.get(3)?,
             path: format!("{}/{}.md", BASE_DIR, row.get::<_, String>(3)?),
         })
     })?;

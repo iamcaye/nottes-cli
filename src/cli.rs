@@ -1,4 +1,7 @@
-use crate::{db::{self, Note}, BASE_DIR};
+use crate::{
+    BASE_DIR,
+    db::{self, Note},
+};
 
 pub fn add_note(title: String) -> anyhow::Result<String> {
     let file_path = format!("{}/{}.md", BASE_DIR, title.replace(" ", "_"));
@@ -7,11 +10,14 @@ pub fn add_note(title: String) -> anyhow::Result<String> {
         return Ok(file_path);
     }
 
-    let content = format!("---
+    let content = format!(
+        "---
 title: {}
 ---
 
-", title);
+",
+        title
+    );
     let res = std::fs::write(&file_path, content);
 
     let conn = db::get_connection()?;
@@ -29,22 +35,22 @@ title: {}
     }
 }
 
-pub fn get_notes() -> anyhow::Result<Vec<String>> {
-    let conn = db::get_connection()?;
-    let mut stmt = conn.prepare("SELECT title FROM notes")?;
-    let notes_iter = stmt.query_map([], |row| row.get(0))?;
+// pub fn get_notes() -> anyhow::Result<Vec<String>> {
+//     let conn = db::get_connection()?;
+//     let mut stmt = conn.prepare("SELECT title FROM notes")?;
+//     let notes_iter = stmt.query_map([], |row| row.get(0))?;
+//
+//     let mut notes = Vec::new();
+//     for note in notes_iter {
+//         notes.push(note?);
+//     }
+//
+//     drop(stmt);
+//     conn.close().expect("Failed to close database connection");
+//     Ok(notes)
+// }
 
-    let mut notes = Vec::new();
-    for note in notes_iter {
-        notes.push(note?);
-    }
-
-    drop(stmt);
-    conn.close().expect("Failed to close database connection");
-    Ok(notes)
-}
-
-pub fn get_notes_by_title (title: &str) -> anyhow::Result<Vec<Note>> {
+pub fn get_notes_by_title(title: &str) -> anyhow::Result<Vec<Note>> {
     let conn = db::get_connection()?;
     let mut stmt = conn.prepare("SELECT * FROM notes WHERE title LIKE ?1")?;
     let notes_iter = stmt.query_map([format!("%{}%", title)], |row| {

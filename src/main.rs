@@ -6,6 +6,7 @@ pub const BASE_DIR: &str = "~/.nottes";
 
 mod cli;
 mod db;
+mod tui;
 
 #[derive(Parser)]
 #[command(name = "nottes", version, about = "note-taking cli app")]
@@ -54,8 +55,12 @@ fn main() -> anyhow::Result<()> {
             Command::new(editor).arg(file).status()?;
         }
         Some(NoteCommand::List) => {
-            println!("Listing all notes");
-            // Here you would add the logic to list notes
+            let notes = cli::get_all_notes()?;
+            if notes.is_empty() {
+                println!("No notes found.");
+            } else {
+                tui::run_notes_ui(notes)?;
+            }
         }
         Some(NoteCommand::Read { id }) => {
             println!("Reading note with ID: {}", id);

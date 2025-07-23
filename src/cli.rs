@@ -35,31 +35,39 @@ title: {}
     }
 }
 
-// pub fn get_notes() -> anyhow::Result<Vec<String>> {
-//     let conn = db::get_connection()?;
-//     let mut stmt = conn.prepare("SELECT title FROM notes")?;
-//     let notes_iter = stmt.query_map([], |row| row.get(0))?;
-//
-//     let mut notes = Vec::new();
-//     for note in notes_iter {
-//         notes.push(note?);
-//     }
-//
-//     drop(stmt);
-//     conn.close().expect("Failed to close database connection");
-//     Ok(notes)
-// }
+pub fn get_all_notes() -> anyhow::Result<Vec<Note>> {
+    let conn = db::get_connection()?;
+    let mut stmt = conn.prepare("SELECT * FROM notes ORDER BY created_at DESC")?;
+    let notes_iter = stmt.query_map([], |row| {
+        Ok(Note {
+            id: row.get(0)?,
+            title: row.get(1)?,
+            slug: row.get(3)?,
+            created_at: row.get(2)?,
+            path: format!("{}/{}.md", BASE_DIR, row.get::<_, String>(3)?),
+        })
+    })?;
+
+    let mut notes = Vec::new();
+    for note in notes_iter {
+        notes.push(note?);
+    }
+
+    drop(stmt);
+    conn.close().expect("Failed to close database connection");
+    Ok(notes)
+}
 
 pub fn get_notes_by_title(title: &str) -> anyhow::Result<Vec<Note>> {
     let conn = db::get_connection()?;
     let mut stmt = conn.prepare("SELECT * FROM notes WHERE title LIKE ?1")?;
     let notes_iter = stmt.query_map([format!("%{}%", title)], |row| {
         Ok(Note {
-            // id: row.get(0)?,
-            // title: row.get(1)?,
-            // created_at: row.get(2)?,
-            // slug: row.get(3)?,
-            path: format!("{}/{}.md", BASE_DIR, row.get::<_, String>(3)?),
+            id: row.get(0)?,
+            title: row.get(1)?,
+            slug: row.get(2)?,
+            created_at: row.get(3)?,
+            path: format!("{}/{}.md", BASE_DIR, row.get::<_, String>(2)?),
         })
     })?;
 

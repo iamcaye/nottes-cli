@@ -2,10 +2,10 @@ use rusqlite::Connection;
 use anyhow::Result;
 
 pub struct Note {
-    // pub id: i32,
-    // pub title: String,
-    // pub slug: String,
-    // pub created_at: String,
+    pub id: i32,
+    pub title: String,
+    pub slug: String,
+    pub created_at: String,
     pub path: String,
 }
 

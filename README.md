@@ -1,13 +1,14 @@
 # Nottes CLI
 
-A simple command-line note-taking application written in Rust. Nottes allows you to create, edit, list, and read markdown notes with a local SQLite database for indexing and organization.
+A simple command-line note-taking application written in Rust. Nottes allows you
+to create, edit, list, and read markdown notes with a local SQLite database for
+indexing and organization.
 
 ## Features
 
 - **Create notes**: Add new notes with titles and automatic markdown formatting
 - **Edit notes**: Edit existing notes with fuzzy search selection (using fzf)
 - **List notes**: Display all your notes
-- **Read notes**: Read specific notes by ID
 - **Local storage**: Notes are stored as markdown files in `~/.nottes/`
 - **Database indexing**: SQLite database for fast note searching and organization
 - **Editor integration**: Opens notes in your preferred editor (uses `$EDITOR` environment variable)
@@ -17,7 +18,7 @@ A simple command-line note-taking application written in Rust. Nottes allows you
 
 ### Prerequisites
 
-- Rust 1.70+ 
+- Rust 1.70+
 - `fzf` (for fuzzy note selection when editing)
 
 ### Build from source
@@ -41,27 +42,35 @@ cargo install --path .
 ### Commands
 
 #### Add a new note
+
 ```bash
 nottes add "My Note Title"
 ```
+
 Creates a new markdown file with the given title and opens it in your editor.
 
 #### Edit an existing note
+
 ```bash
 nottes edit "partial title"
 ```
+
 Searches for notes matching the partial title. If multiple matches are found, uses fzf for selection.
 
 #### List all notes
+
 ```bash
 nottes list
 ```
+
 Displays all your notes.
 
 #### Read a specific note
+
 ```bash
 nottes read <note-id>
 ```
+
 Reads a note by its ID.
 
 ### Configuration
@@ -122,13 +131,14 @@ src/
 ## TODO
 
 ### High Priority
-- [ ] Implement `list` command functionality
-- [ ] Implement `read` command functionality
+
+- [x] Implement `list` command functionality
 - [ ] Add proper error handling for missing notes
 - [ ] Add tests for all CLI operations
 - [ ] Improve fuzzy search with better matching algorithms
 
 ### Medium Priority
+
 - [ ] Implement tagging system
   - [ ] Add tags to notes
   - [ ] Search notes by tags
@@ -146,6 +156,7 @@ src/
   - [ ] Backup all notes
 
 ### Low Priority
+
 - [ ] Configuration file support
 - [ ] Custom note templates
 - [ ] Note history/versioning
@@ -156,6 +167,7 @@ src/
 - [ ] Plugin system for extensibility
 
 ### Technical Improvements
+
 - [ ] Better error messages
 - [ ] Logging system
 - [ ] Performance optimizations

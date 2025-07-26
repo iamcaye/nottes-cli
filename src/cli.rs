@@ -20,14 +20,15 @@ title: {}
     );
     let res = std::fs::write(&file_path, content);
 
-    let conn = db::get_connection()?;
-    conn.execute(
-        "INSERT INTO notes (title, slug) VALUES (?1, ?2)",
-        rusqlite::params![title, title.replace(" ", "_")],
-    )?;
-
     match res {
         Ok(_) => {
+            let conn = db::get_connection()?;
+            conn.execute(
+                "INSERT INTO notes (title, slug) VALUES (?1, ?2)",
+                rusqlite::params![title, title.replace(" ", "_")],
+            )
+            .expect("Failed to insert note into database");
+
             conn.close().expect("Failed to close database connection");
             Ok(file_path)
         }

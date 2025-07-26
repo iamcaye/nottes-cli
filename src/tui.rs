@@ -1,4 +1,4 @@
-use crate::db::Note;
+use crate::{db::Note, utils};
 use anyhow::Result;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -13,9 +13,7 @@ use ratatui::{
     widgets::{Block, Borders, Cell, Row, Table, TableState},
 };
 use std::{
-    env,
     io,
-    process::Command,
     time::{Duration, Instant},
 };
 
@@ -90,10 +88,7 @@ pub fn run_notes_ui(notes: Vec<Note>) -> Result<()> {
 
     match res {
         Ok(Some(note_path)) => {
-            // Open note with default editor
-            let editor = env::var("EDITOR").unwrap_or_else(|_| String::from("vi"));
-            let filepath = shellexpand::tilde(&note_path).to_string();
-            Command::new(editor).arg(filepath).status()?;
+            utils::open_in_editor(&note_path)?;
         }
         Ok(None) => {
             // User quit without selecting

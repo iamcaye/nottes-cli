@@ -1,5 +1,4 @@
-use clap::{Parser, Subcommand, arg, command};
-use std::env;
+use clap::{Parser, Subcommand, command};
 use std::process::Command;
 
 pub const BASE_DIR: &str = "~/.nottes";
@@ -7,6 +6,7 @@ pub const BASE_DIR: &str = "~/.nottes";
 mod cli;
 mod db;
 mod tui;
+mod utils;
 
 #[derive(Parser)]
 #[command(name = "nottes", version, about = "note-taking cli app")]
@@ -17,17 +17,9 @@ struct Args {
 
 #[derive(Subcommand)]
 enum NoteCommand {
-    Add {
-        title: String,
-    },
-    Edit {
-        title: Option<String>,
-    },
+    Add { title: String },
+    Edit { title: Option<String> },
     List,
-    Read {
-        #[arg()]
-        id: String,
-    },
 }
 
 fn init() {
@@ -38,7 +30,7 @@ fn init() {
     }
 
     match db::init() {
-        Ok(_) => println!("Local database initialized successfully."),
+        Ok(_) => (),
         Err(e) => eprintln!("Failed to initialize database: {}", e),
     }
 }
@@ -51,8 +43,7 @@ fn main() -> anyhow::Result<()> {
         Some(NoteCommand::Add { title }) => {
             println!("Adding note with title: {}", title);
             let file = cli::add_note(title)?;
-            let editor = env::var("EDITOR").unwrap_or_else(|_| String::from("vi"));
-            Command::new(editor).arg(file).status()?;
+            utils::open_in_editor(file)?;
         }
         Some(NoteCommand::List) => {
             let notes = cli::get_all_notes()?;
@@ -61,10 +52,6 @@ fn main() -> anyhow::Result<()> {
             } else {
                 tui::run_notes_ui(notes)?;
             }
-        }
-        Some(NoteCommand::Read { id }) => {
-            println!("Reading note with ID: {}", id);
-            // Here you would add the logic to read a specific note
         }
         Some(NoteCommand::Edit { title }) => {
             let notes = cli::get_notes_by_title(title.as_deref().unwrap_or(""))?;
@@ -97,10 +84,8 @@ fn main() -> anyhow::Result<()> {
             } else {
                 selected_note = notes[0].path.to_string();
             }
-            let editor = env::var("EDITOR").unwrap_or_else(|_| String::from("vi"));
             println!("Opening note: {}", selected_note);
-            let filepath = shellexpand::tilde(&selected_note).to_string();
-            Command::new(editor).arg(filepath).status()?;
+            utils::open_in_editor(&selected_note)?;
         }
         None => {
             println!("No command provided. Use --help for more information.");
